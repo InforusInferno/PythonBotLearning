@@ -57,4 +57,94 @@ class StudyRepositories(BaseJSONRepository):
         str_id = str(user_id)
         return stats.get(str_id, {}).get("total_minutes", 0)
 
+class TriviaRepository(BaseJSONRepository):
+    # repo for managing trvia scores
+    def __init__(self, file_path: str = "data/trivia_scores.json"):
+        super().__init__(file_path, default_data={})
+
+    async def add_score(self, guild_id: int, user_id: int, points: int) -> None:
+        scores = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+
+        scores.setdefault(str_guild, {}).setdefault(str_user, 0)
+        scores[str_guild][str_user] += points
+        await self.write(scores)
+
+    async def get_guild_scores(self, guild_id: int) -> Dict[str, int]:
+        scores = await self.read()
+        str_guild = str(guild_id)
+        return scores.get(str_guild, {})
     
+class LevelingRepository(BaseJSONRepository):
+    # xp and levels
+    def __init__(self, file_path: str = "data/xp_stats.json"):
+        super().__init__(file_path, default_data={})
+
+    async def add_xp(self, guild_id: int, user_id: int, xp: int)-> None:
+        stats = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+
+        stats.setdefault(str_guild, {}).setdefault(str_user, 0)
+        stats[str_guild][str_user] += xp
+        await self.write(stats)
+
+    async def get_xp(self, guild_id: int, user_id: int) -> int:
+        stats = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+        return stats.get(str_guild, {}).get(str_user, 0)
+    
+class ModerationRepository(BaseJSONRepository):
+    # mod specific stuffs
+    def __init__(self, file_path: str = "data/automod_settings.json"):
+        super().__init__(file_path, default_data = {})
+
+    async def add_banned_word(self, guild_id: int, word: str) -> None:
+        data = await self.read()
+        str_guild = str(guild_id)
+
+        data.setdefault(str_guild, [])
+        word_lower = word.lower()
+        if word_lower not in data[str_guild]:
+            data[str_guild].append(word_lower)
+            await self.write(data)
+
+    async def remove_banned_word(self, guild_id: int, word: str) -> None:
+        data = await self.read()
+        str_guild = str(guild_id)
+
+        if str_guild in data:
+            word_lower = word.lower()
+            if word_lower in data[str_guild]:
+                data[str_guild].remove(word_lower)
+                await self.write(data)
+
+    async def get_banned_words(self, guild_id: int) -> list[str]:
+        data = await self.read()
+        str_guild = str(guild_id)
+        return data.get(str_guild, [])
+    
+class CustomTriviaRepository(BaseJSONRepository):
+    # custom questions
+    def __init__(self, file_path: str = "data/custom_trivia.json"):
+        super().__init__(file_path, default_data={})
+
+    async def add_question(self, guild_id: int, question: str, correct_answer: str, incorrect_answers: list[str], author_id: int) -> None:
+        data = await self.read()
+        str_guild = str(guild_id)
+
+        data.setdefault(str_guild, [])
+        data[str_guild].append({
+            "question":question,
+            "correct_answer":correct_answer,
+            "incorrect_answers":incorrect_answers,
+            "author_id": author_id
+        })
+        await self.write(data)
+
+    async def get_questions(self, guild_id: int) -> list[Dict[str, Any]]:
+        data = await self.read()
+        str_guild = str(guild_id)
+        return data.get(str_guild, [])

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 MAX_POMODORO_MINUTES = 180
 
 class GroupPomodoroView(discord.ui.View):
-    def __init__(self, host_id: int, cog: "StudyTimer")
+    def __init__(self, host_id: int, cog: "StudyTimer"):
         super().__init__(timeout=None)
         self.host_id = host_id
         self.cog = cog
@@ -68,7 +68,7 @@ class StudyTimer(commands.Cog):
             await interaction.response.send_message(msg, ephemeral=True)
             return False
         
-        if minutes <= 0 or minutes > MAX.POMODORO.MINUTES:
+        if minutes <= 0 or minutes > MAX_POMODORO_MINUTES:
             await interaction.response.send_message(f"Please enter a duration between 1 and {MAX_POMODORO_MINUTES} minutes.", ephemeral=True)
             return False
         
@@ -122,5 +122,4 @@ class StudyTimer(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(StudyTimer(bot))
-    
-     
+

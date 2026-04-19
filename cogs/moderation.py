@@ -76,3 +76,42 @@ class Moderation(commands.Cog):
         await self.repo.remove_banned_word(interaction.guild_id, word)
         await interaction.response.send_message(f"Removed {word} from word filter.", ephemeral=True)
         
+    @automod.command(name="list", description="List of all filtered words.")
+    @app_commands.default_permissions(manage_messages=True)
+    async def automod_list(self, interaction: discord.Interaction) -> None:
+        if not interaction.guild.id:
+            return
+        
+        words = await self.repo.get_banned_words(interaction.guild_id)
+        if not words:
+            await interaction.response.send_message("No words in filter.", ephemeral=True)
+            return
+        
+        word_list = ", ".join(words)
+        await interaction.response.send_message(f"Filtered words: {word_list}", ephemeral=True)
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message) -> None:
+        if message.author.bot or not message.guild:
+            return
+        
+        if message.author.guild_permissions.manage_messages:
+            return
+        
+        banned_words = await self.repo.get_banned_words(message.guild.id)
+        if not banned_words:
+            return
+        
+        content_lower = message.content.lower()
+        for word in banned_words:
+            if word in content_lower:
+                try:
+                    await message.delete()
+                    await message.channel.send(f"{message.author.mention}, your message has a filtered word and got deleted.", delete_after=10)
+                except discord.Forbidden:
+                    pass
+                break
+
+async def setup(bot:commands.Bot) -> None:
+    await bot.add_cog(Moderation(bot))
+    

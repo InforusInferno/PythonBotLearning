@@ -70,7 +70,7 @@ class Moderation(commands.Cog):
     @app_commands.describe(word="Word to unban")
     @app_commands.default_permissions(manage_messages=True)
     async def automod_remove(self, interaction: discord.Interaction, word: str) -> None:
-        if not interation.guild_id:
+        if not interaction.guild_id:
             return
         
         await self.repo.remove_banned_word(interaction.guild_id, word)
@@ -114,4 +114,3 @@ class Moderation(commands.Cog):
 
 async def setup(bot:commands.Bot) -> None:
     await bot.add_cog(Moderation(bot))
-    

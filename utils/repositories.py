@@ -2,6 +2,7 @@ import json
 import asyncio
 import pathlib
 import copy
+import time
 from typing import Dict, Any
 
 class BaseJSONRepository:
@@ -96,6 +97,15 @@ class LevelingRepository(BaseJSONRepository):
         str_user = str(user_id)
         return stats.get(str_guild, {}).get(str_user, 0)
     
+    async def get_all_xp(self, guild_id: int) -> Dict[str, int]:
+        stats = await self.read()
+        str_guild = str(guild_id)
+        return stats.get(str_guild, {})
+    
+    async def set_boost(self, guild_id: int, user_id: int, multiplier: float, duration_seconds: int) -> None:
+        data = await self.read()
+        pass
+    
 class ModerationRepository(BaseJSONRepository):
     # mod specific stuffs
     def __init__(self, file_path: str = "data/automod_settings.json"):
@@ -148,3 +158,155 @@ class CustomTriviaRepository(BaseJSONRepository):
         data = await self.read()
         str_guild = str(guild_id)
         return data.get(str_guild, [])
+    
+class EconomyRepository(BaseJSONRepository):
+    def __init__(self, file_path : str = "data/economy.json"):
+        super().__init__(file_path, default_data={})
+    
+    async def get_balance(self, guild_id: int, user_id: int) -> int:
+        data = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+        return data.get(str_guild, {}).get(str_user, {}).get("balance", 0)
+    
+    async def add_balance(self, guild_id: int, user_id: int, amount: int) -> int:
+        data = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+
+        data.setdefault(str_guild, {}).setdefault(str_user, {"balance": 0, "last_daily": 0, "last_message": 0})
+        data[str_guild][str_user]["balance"] += amount
+        await self.write(data)
+        return data[str_guild][str_user]["balance"]
+    
+    async def set_cooldown(self, guild_id: int, user_id: int, cooldown_type: str, timestamp: float) -> None:
+        data = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+
+        data.setdefault(str_guild, {}).setdefault(str_user, {"balance": 0, "last_daily":0, "last_message":0})
+        data[str_guild][str_user][f"last_{cooldown_type}"] = timestamp
+        await self.write(data)
+
+    async def get_cooldown(self, guild_id: int, user_id: int, cooldown_type: str) -> float:
+        data = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+        return data.get(str_guild, {}).get(str_user, {}).get(f"last_{cooldown_type}", 0)
+    
+class SettingsRepository(BaseJSONRepository):
+    def __init__(self, file_path: str = "data/settings.json"):
+        super().__init__(file_path, default_data={})
+
+    async def set_setting(self, guild_id: int, key: str, value: Any) -> None:
+        data = await self.read()
+        str_guild = str(guild_id)
+        data.setdefault(str_guild, {})[key] = value
+        await self.write(data)
+
+    async def get_setting(self, guild_id: int, key: str, default: Any = None) -> Any:
+        data = await self.read()
+        str_guild = str(guild_id)
+        return data.get(str_guild, {}).get(key, default)
+    
+    async def add_role_reward(self, guild_id: int, level: int, role_id: int) -> None:
+        rewards = await self.get_setting(guild_id, "role_rewards", {})
+        rewards[str(level)] = role_id
+        await self.set_setting(guild_id, "role_rewards", rewards)
+
+    async def get_role_rewards(self, guild_id: int) -> Dict[str, int]:
+        return await self.get_setting(guild_id, "role_rewards", {})
+    
+class BoostRepository(BaseJSONRepository):
+    def __init__(self, file_path: str = "data/boosts.json"):
+        super().__init__(file_path, default_data={})
+
+    async def add_boost(self, guild_id: int, user_id: int, boost_type: str, multiplier: float, end_time: float) -> None:
+        data = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+
+        data.setdefault(str_guild, {}).setdefault(str_user, {}).setdefault(boost_type, [])
+        data[str_guild][str_user][boost_type].append({
+            "multiplier": multiplier,
+            "end_time": end_time
+        })
+        await self.write(data)
+
+    async def get_active_multiplier(self, guild_id: int, user_id: int, boost_type: str) -> float:
+        data = await self.read()
+        str_guild = str(guild_id)
+        str_user = str(user_id)
+        current_time = time.time()
+
+        boosts = data.get(str_guild, {}).get(str_user, {}).get(boost_type, [])
+        if not boosts:
+            return 1.0
+        
+        total_multiplier = 1.0
+        active_boosts = []
+        for boost in boosts:
+            if boost["end_time"] > current_time:
+                total_multiplier *= boost["multiplier"]
+                active_boosts.append(boost)
+
+        if len(active_boosts) != len(boosts):
+            data[str_guild][str_user][boost_type] = active_boosts
+            await self.write(data)
+
+        return total_multiplier
+    
+class TaskRepository(BaseJSONRepository):
+    def __init__(self, file_path: str = "data/tasks.json"):
+        super().__init__(file_path, default_data={})
+
+    async def add_task(self, user_id: int, content: str, due_time: Optional[float] = None) -> int:
+        data = await self.read()
+        str_user = str(user_id)
+
+        data.setdefault(str_user, [])
+        task_id = len(data[str_user]) + 1
+        data[str_user].append({
+            "id": task_id,
+            "content": content,
+            "due_time": due_time,
+            "completed": False,
+            "created_at": time.time()
+        })
+        await self.write(data)
+        return task_id
+    
+    async def get_tasks(self, user_id: int, include_completed: bool = False) -> List[Dict[str, Any]]:
+        data = await self.read()
+        str_user = str(user_id)
+        tasks = data.get(str_user, [])
+        if not include_completed:
+            return [t for t in tasks if not t["completed"]]
+        return tasks
+    
+    async def complete_task(self, user_id: int, task_id: int) -> bool:
+        data = await self.read()
+        str_user = str(user_id)
+        tasks = data.get[str_user, []]
+        for task in tasks:
+            if task["id"] == task_id:
+                task["completed"] = True
+                await self.write(data)
+                return True
+            return False
+        
+    async def get_all_due_tasks(self) -> List[Dict[str, Any]]:
+        data = await self.read()
+        current_time = time.time()
+        due_tasks = []
+        for user_id_str, tasks in data.items():
+            for task in tasks:
+                if not task["completed"] and task["due_time"] and task ["due_time"] <= current_time:
+                    if not task.get("notified", False):
+                        due_tasks.append[{**task, "user_id": int(user_id_str)}]
+                        task["notified"] = True
+
+        if due_tasks:
+            await self.write(data)
+        return due_tasks
+

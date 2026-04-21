@@ -4,7 +4,7 @@ from typing import Dict, Set
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils.repositories import StudyRepository
+from utils.repositories import StudyRepository, EconomyRepository
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,7 @@ class StudyTimer(commands.Cog):
         self.bot = bot
         self.active_timers:Dict[int, dict]={}
         self.repo = StudyRepository()
+        self.economy_repo = EconomyRepository()
 
     async def _pomodoro_task(self, host: discord.Member | discord.User, minutes: int, is_group: bool):
         try:
@@ -50,9 +51,13 @@ class StudyTimer(commands.Cog):
 
             for p_id in participants:
                 await self.repo.add_study_time(p_id, minutes)
+                credits_reward = minutes * 2
+                guild_id = session_data.get("guild_id")
+                if guild_id:
+                    await self.economy_repo.add_balance(guild_id, p_id, credits_reward)
                 try:
                     user = self.bot.get_user(p_id) or await self.bot.fetch_user(p_id)
-                    await user.send(f"The {minutes}-minute session has ended.")
+                    await user.send(f"The {minutes}-minute session has ended. You earned {credits_reward} credits.")
                 except (discord.Forbbiden, discord.HTTPException):
                     pass
 
@@ -76,7 +81,8 @@ class StudyTimer(commands.Cog):
         self.active_timers[interaction.user.id] = {
             "task":task,
             "participants":{interaction.user.id},
-            "is_group":is_group
+            "is_group":is_group,
+            "guild_id": interaction.guild_id
         }
         return True
     pomodoro = app_commands.Group(name="pomodoro", description="Timer commands :D")

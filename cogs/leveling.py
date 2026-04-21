@@ -6,7 +6,7 @@ import random
 import math
 import time
 from typing import Dict
-from utils.repostories import LevelingRepository
+from utils.repositories import LevelingRepository, SettingsRepository, BoostRepository
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +21,8 @@ class Leveling(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.repo = LevelingRepository()
+        self.settings_repo = SettingsRepository()
+        self.boost_repo = BoostRepository()
         self.last_message_times: Dict[int, float] = {}
 
     def _calculate_level(self, xp: int) -> int:
@@ -50,7 +52,8 @@ class Leveling(commands.Cog):
         self.last_message_times[user_id] = current_time
 
         # calc + add xp
-        xp_gain = random.randint(MIN_XP_MESSAGE, MAX_XP_MESSAGE)
+        multiplier = await self.boost_repo.get_active_multiplier(guild_id, user_id, "xp")
+        xp_gain = int(random.randint(MIN_XP_MESSAGE, MAX_XP_MESSAGE)* multiplier)
 
         old_xp = await self.repo.get_xp(guild_id, user_id)
         old_level = self._calculate_level(old_xp)
@@ -64,6 +67,17 @@ class Leveling(commands.Cog):
         if new_level > old_level:
             try: 
                 await message.channel.send(f"{message.author.mention} has reached level **{new_level}**")
+
+                rewards = await self.settings_repo.get_role_Rewards(guild_id)
+                for lvl_str, role_id, in rewards.items():
+                    if new_level >= int(lvl_str):
+                        role = message.guild.get_role(role_id)
+                        if role and role not in message.author.roles:
+                            try:
+                                await message.author.add_roles(role, reason=f"Level {new_level} achievement")
+                                await message.channel.send(f"You got the {role.name} role!")
+                            except discord.Forbidden:
+                                logger.error(f"Missing perms to add role {role.name} in {message.guild.name}")
             except discord.Forbidden:
                 pass
 
@@ -94,6 +108,43 @@ class Leveling(commands.Cog):
 
         embed.add_field(name="Progress", value=bar, inline=False)
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="leaderboard", description="Show server leaderboard")
+    async def leaderboard(self, interaction:discord.Interaction) -> None:
+        if not interaction.guild.id:
+            await interaction.response.send_message("Leaderboard is only available in servers", ephemeral=True)
+            return
+        
+        all_xp = await self.repo.get_all_xp(interaction.guild_id)
+        if not all_xp:
+            await interaction.response.send_messaage("No one has any XP yet.")
+            return
+        
+        sorted_xp = sorted(all_xp.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        embed = discord.Embed(
+            title=f"XP Leaderboard for {interaction.guild_name}",
+            color=discord.Color.gold()
+        )
+
+        desc = " "
+        for i, (user_id_str, xp) in enumerate(sorted_xp, 1):
+            level = self._calculate_level(xp)
+            desc += f"**{i}.** <@{user_id_str}> - Level {level} ({xp} XP)\n"
+
+        embed.description = desc
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="add_reward", description="ADMIN: Add role reward fo a level")
+    @app_commands.describe(level="Level needed", role="Role awarded")
+    @app_commands.checks.has_permissions(manage_roles=True)
+    async def add_reward(self, interaction:discord.Interaction, level: int, role: discord.Role) -> None:
+        if not interaction.guild.id:
+            return
+        
+        await self.settings_repo.add_role_reward(interaction.guild_id, level, role.id)
+        await interaction.response.send_message(f"Added reward. {role.name} will be awarded at {level}", ephemeral=True)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Leveling(bot))

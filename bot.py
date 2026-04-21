@@ -57,6 +57,9 @@ def main() -> None:
     if not token or token == "your_bot_token_here":
         logger.error("Can't find bot token.")
         return
+    if not token:
+        logger.error("token missing from env var")
+    
 
     bot = UtilityBot()
     bot.run(token, log_handler=None)

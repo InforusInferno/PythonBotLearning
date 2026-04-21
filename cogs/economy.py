@@ -47,7 +47,7 @@ class Economy(commands.Cog):
     @tasks.loop(hours=1.0)
     async def passive_income_task(self):
         logger.info("Running passive inc task")
-        for guild in self.bot.guilds():
+        for guild in self.bot.guilds:
             investor_role = discord.utils.get(guild.roles, name="Server Investor")
             if not investor_role:
                 continue

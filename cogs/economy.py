@@ -82,7 +82,7 @@ class Economy(commands.Cog):
         await self.repo.add_balance(guild_id, user_id, credits_gain)
 
     @app_commands.command(name="balance", description="Check your balance")
-    async def balance(self, interaction: discord.Intraction, member: Optional[discord.Member] = None) -> None:
+    async def balance(self, interaction: discord.Interaction, member: Optional[discord.Member] = None) -> None:
         target = member or interaction.user
         if not interaction.guild_id:
             return

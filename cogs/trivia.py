@@ -85,7 +85,7 @@ class TriviaGame(commands.Cog):
         self.session: Optional[aiohttp.ClientSession] = None
 
     async def cog_load(self) -> None:
-        self.session(aiohttp.ClientSession)
+        self.session = aiohttp.ClientSession()
 
     async def cog_unload(self) -> None:
         if self.session:
@@ -131,7 +131,7 @@ class TriviaGame(commands.Cog):
             difficulty = "Custom"
         
         else:
-            question_data = await self._fetch_question(category)
+            question_data = await self._fetch_questions(category)
             if not question_data:
                 await interaction.followup.send("Failed to fetch a trivia question from OpenTDB. Try again later")
                 return

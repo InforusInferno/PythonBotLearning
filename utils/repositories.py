@@ -3,7 +3,7 @@ import asyncio
 import pathlib
 import copy
 import time
-from typing import Dict, Any, Optional
+from typing import Any
 
 class BaseJSONRepository:
     # base repo for async ops w in mem cache
@@ -72,7 +72,7 @@ class TriviaRepository(BaseJSONRepository):
         scores[str_guild][str_user] += points
         await self.write(scores)
 
-    async def get_guild_scores(self, guild_id: int) -> Dict[str, int]:
+    async def get_guild_scores(self, guild_id: int) -> dict[str, int]:
         scores = await self.read()
         str_guild = str(guild_id)
         return scores.get(str_guild, {})
@@ -97,7 +97,7 @@ class LevelingRepository(BaseJSONRepository):
         str_user = str(user_id)
         return stats.get(str_guild, {}).get(str_user, 0)
     
-    async def get_all_xp(self, guild_id: int) -> Dict[str, int]:
+    async def get_all_xp(self, guild_id: int) -> dict[str, int]:
         stats = await self.read()
         str_guild = str(guild_id)
         return stats.get(str_guild, {})
@@ -154,7 +154,7 @@ class CustomTriviaRepository(BaseJSONRepository):
         })
         await self.write(data)
 
-    async def get_questions(self, guild_id: int) -> list[Dict[str, Any]]:
+    async def get_questions(self, guild_id: int) -> list[dict[str, Any]]:
         data = await self.read()
         str_guild = str(guild_id)
         return data.get(str_guild, [])
@@ -214,7 +214,7 @@ class SettingsRepository(BaseJSONRepository):
         rewards[str(level)] = role_id
         await self.set_setting(guild_id, "role_rewards", rewards)
 
-    async def get_role_rewards(self, guild_id: int) -> Dict[str, int]:
+    async def get_role_rewards(self, guild_id: int) -> dict[str, int]:
         return await self.get_setting(guild_id, "role_rewards", {})
     
 class BoostRepository(BaseJSONRepository):
@@ -260,7 +260,7 @@ class TaskRepository(BaseJSONRepository):
     def __init__(self, file_path: str = "data/tasks.json"):
         super().__init__(file_path, default_data={})
 
-    async def add_task(self, user_id: int, content: str, due_time: Optional[float] = None) -> int:
+    async def add_task(self, user_id: int, content: str, due_time: float | None = None) -> int:
         data = await self.read()
         str_user = str(user_id)
 
@@ -276,7 +276,7 @@ class TaskRepository(BaseJSONRepository):
         await self.write(data)
         return task_id
     
-    async def get_tasks(self, user_id: int, include_completed: bool = False) -> list[Dict[str, Any]]:
+    async def get_tasks(self, user_id: int, include_completed: bool = False) -> list[dict[str, Any]]:
         data = await self.read()
         str_user = str(user_id)
         tasks = data.get(str_user, [])
@@ -295,7 +295,7 @@ class TaskRepository(BaseJSONRepository):
                 return True
             return False
         
-    async def get_all_due_tasks(self) -> list[Dict[str, Any]]:
+    async def get_all_due_tasks(self) -> list[dict[str, Any]]:
         data = await self.read()
         current_time = time.time()
         due_tasks = []

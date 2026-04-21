@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 import logging
 import time
 import re
-from typing import Optional, List
+from typing import Optional
 from utils.repositories import TaskRepository
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ class TaskManager(commands.Cog):
     def cog_unload(self):
         self.reminder_check.cancel()
 
-    def parse_duration(self, duration_str : str) -> Optional[int]:
+    def parse_duration(self, duration_str : str) -> int | None:
         total_seconds = 0
         patterns = {
             'd' : 86400,

@@ -5,7 +5,6 @@ import logging
 import random
 import math
 import time
-from typing import Dict
 from utils.repositories import LevelingRepository, SettingsRepository, BoostRepository
 
 logger = logging.getLogger(__name__)
@@ -23,7 +22,7 @@ class Leveling(commands.Cog):
         self.repo = LevelingRepository()
         self.settings_repo = SettingsRepository()
         self.boost_repo = BoostRepository()
-        self.last_message_times: Dict[int, float] = {}
+        self.last_message_times: dict[int, float] = {}
 
     def _calculate_level(self, xp: int) -> int:
         # calc lvl from formula -> level = 0.1 * sqrt(xp)

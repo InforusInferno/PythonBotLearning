@@ -28,9 +28,10 @@ class UtilityBot(commands.Bot):
             "cogs.trivia",
             "cogs.moderation",
             "cogs.leveling",
+            "cogs.economy",
             "cogs.tasks",
             "cogs.events"
-        ]   
+        ]
 
         for extension in initial_extensions:
             try:

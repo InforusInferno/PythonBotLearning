@@ -15,7 +15,7 @@ TRIVIA_TIMEOUT = 60.0
 
 TRIVIA_CATEGORIES = [
     app_commands.Choice(name="Any", value=0),
-    app_commands.Choice(name="Server Custom", value=1),
+    app_commands.Choice(name="Server Custom", value=-1),
     app_commands.Choice(name="General Knowledge", value=9),
     app_commands.Choice(name="Books", value=10),
     app_commands.Choice(name="Film", value=11),

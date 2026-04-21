@@ -95,7 +95,7 @@ class Leveling(commands.Cog):
             title=f"Rank - {interaction.user.display_name}",
             color=discord.Color.red()
         )
-        embed.set.thumbnail(url=interaction.user.display_avatar.url if interaction.user.display_avatar else None)
+        embed.set_thumbnail(url=interaction.user.display_avatar.url if interaction.user.display_avatar else None)
         embed.add_field(name="Level", value=f"**{level}**", inline=True)
         embed.add_field(name="XP", value=f"**{xp}** / {next_level_xp}", inline=True)
 

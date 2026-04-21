@@ -60,7 +60,7 @@ class TaskManager(commands.Cog):
 
     @task_group.command(name="add", description="add a new task to your list")
     async def task_add(self, interaction: discord.Interaction, content: str) -> None:
-        task_id = await self.repo.add_task(interaction.user_id, content)
+        task_id = await self.repo.add_task(interaction.user.id, content)
         await interaction.response.send_message(f"Added task #{task_id}: {content}", ephemeral=True)
 
     @task_group.command(name="list", description="list active tasks")
@@ -80,7 +80,7 @@ class TaskManager(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @task_group.command(name="complete", description="mark a task as completed")
-    async def task_complete(self, interaction: discord.Interaction, task_id = int) -> None:
+    async def task_complete(self, interaction: discord.Interaction, task_id : int) -> None:
         success = await self.repo.complete_task(interaction.user.id, task_id)
         if success:
             await interaction.response.send_message(f"Task #{task_id} marked complete", ephemeral=True)

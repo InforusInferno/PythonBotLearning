@@ -93,7 +93,7 @@ class ServerEvents(commands.Cog):
 
     @config.command(name="welcome_channel", description="Set the welcome channel")
     @app_commands.checks.has_permissions(manage_guild=True)
-    async def config_welcome_msg(self, interaction: discord.Interaction, channel = discord.TextChannel) -> None:
+    async def config_welcome_msg(self, interaction: discord.Interaction, channel : discord.TextChannel) -> None:
         await self.settings.set_setting(interaction.guild_id, "welcome_channel_id", channel.id)
         await interaction.response.send_message(f"Set welcome channel to {channel.mention}", ephemeral=True)
 

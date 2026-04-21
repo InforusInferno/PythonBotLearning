@@ -19,7 +19,7 @@ TRIVIA_CATEGORIES = [
     app_commands.Choice(name="General Knowledge", value=9),
     app_commands.Choice(name="Books", value=10),
     app_commands.Choice(name="Film", value=11),
-    app_commands.Choice(name="Music", valie=12),
+    app_commands.Choice(name="Music", value=12),
     app_commands.Choice(name="Video Games", value=15),
     app_commands.Choice(name="Computers", value=18)
 ]

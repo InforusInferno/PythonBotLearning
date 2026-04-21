@@ -39,7 +39,7 @@ class BaseJSONRepository:
         async with self._lock:
             await asyncio.to_thread(self._write_sync, data_copy)
 
-class StudyRepositories(BaseJSONRepository):
+class StudyRepository(BaseJSONRepository):
     # timer stats repo
     def __init__(self, file_path: str = "data/study_stats.json"):
         super().__init__(file_path, default_data={})

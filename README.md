@@ -81,7 +81,7 @@ u can deploy on railway or whatever you want pretty much
 # INVITE LINK
 https://discord.com/oauth2/authorize?client_id=1495096883327139971&permissions=277025467398&integration_type=0&scope=bot
 
-# LAST UPDATE: 4/21/2026 9:13 PM GMT+3
+# LAST UPDATE: 4/21/2026 11:28 PM GMT+3
 # COMPLETE README.MD AS OF LAST UPDATE
 
 

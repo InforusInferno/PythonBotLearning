@@ -3,7 +3,7 @@ import asyncio
 import pathlib
 import copy
 import time
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 class BaseJSONRepository:
     # base repo for async ops w in mem cache
@@ -276,7 +276,7 @@ class TaskRepository(BaseJSONRepository):
         await self.write(data)
         return task_id
     
-    async def get_tasks(self, user_id: int, include_completed: bool = False) -> List[Dict[str, Any]]:
+    async def get_tasks(self, user_id: int, include_completed: bool = False) -> list[Dict[str, Any]]:
         data = await self.read()
         str_user = str(user_id)
         tasks = data.get(str_user, [])
@@ -295,7 +295,7 @@ class TaskRepository(BaseJSONRepository):
                 return True
             return False
         
-    async def get_all_due_tasks(self) -> List[Dict[str, Any]]:
+    async def get_all_due_tasks(self) -> list[Dict[str, Any]]:
         data = await self.read()
         current_time = time.time()
         due_tasks = []

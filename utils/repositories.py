@@ -310,3 +310,59 @@ class TaskRepository(BaseJSONRepository):
             await self.write(data)
         return due_tasks
 
+class TamagotchiRepository(BaseJSONRepository):
+    def __init__(self, file_path: str = "data/tamagotchi.json"):
+        super().__init__(file_path, default_data={})
+
+    async def _get_raw_user_data(self, user_id: int) -> dict[str, Any]:
+        data = await self.read()
+        str_id = str(user_id)
+        
+        if str_id not in data:
+            data[str_id] = {"active": None, "history": []}
+            return data[str_id]
+            
+        # migration if there is old
+        if isinstance(data[str_id], dict) and "active" not in data[str_id]:
+            old_pet = data[str_id]
+            data[str_id] = {"active": old_pet, "history": []}
+            
+        return data[str_id]
+
+    async def get_pet(self, user_id: int) -> dict[str, Any] | None:
+        user_data = await self._get_raw_user_data(user_id)
+        return user_data.get("active")
+
+    async def save_pet(self, user_id: int, pet_data: dict[str, Any] | None) -> None:
+        data = await self.read()
+        user_data = await self._get_raw_user_data(user_id)
+        user_data["active"] = pet_data
+        data[str(user_id)] = user_data
+        await self.write(data)
+
+    async def add_to_history(self, user_id: int, pet_data: dict[str, Any]) -> None:
+        data = await self.read()
+        user_data = await self._get_raw_user_data(user_id)
+        user_data["history"].append(pet_data)
+        data[str(user_id)] = user_data
+        await self.write(data)
+
+    async def get_history(self, user_id: int) -> list[dict[str, Any]]:
+        user_data = await self._get_raw_user_data(user_id)
+        return user_data.get("history", [])
+
+    async def create_pet(self, user_id: int, name: str) -> dict[str, Any]:
+        pet_data = {
+            "name": name,
+            "satiety": 100.0,
+            "energy": 100.0,
+            "happiness": 100.0,
+            "hygiene": 100.0,
+            "discipline": 50.0,
+            "last_update": time.time(),
+            "born_at": time.time(),
+            "died_at": None
+        }
+        await self.save_pet(user_id, pet_data)
+        return pet_data
+    

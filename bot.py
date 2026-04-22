@@ -30,7 +30,8 @@ class UtilityBot(commands.Bot):
             "cogs.leveling",
             "cogs.economy",
             "cogs.tasks",
-            "cogs.events"
+            "cogs.events",
+            "cogs.tamagotchi"
         ]
 
         for extension in initial_extensions:

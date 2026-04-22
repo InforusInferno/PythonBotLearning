@@ -14,7 +14,7 @@ more features coming soon in the next 2 months
 -**Events**
 -**Economy**
 -**Test Cmds**
-
+-**Tamagotchi**
 
 
 ## Command List
@@ -46,6 +46,22 @@ more features coming soon in the next 2 months
 `/trivia party [category]` - play with friends :D
 `/trivia leaderboard` - the winner takes it all
 `/trivia add_custom [question] [correct] [wrong1] [wrong2] [wrong3]` - add custom question 
+
+# Tamagotchi
+`/pet_create` - Adopt a pet
+`/pet_status` - Check on your pet
+`/pet_history` - View history
+`/feed` - Feed your pet
+`/sleep` - Make your pet take a nap
+`/pet` - pet your pet
+`/play` - play with your pet
+`/hit` - discipline your pet
+`/poke` - wakey wakey
+`/clean` - make pet take a shower
+`/hug` - give your pet a hug
+`/nudge` - remind pet to stay in line
+`/praise` - compliment pet :D
+`/time_out` - put your pet in timeout
 
 # Levels/XP
 `/rank` - check level and XP
@@ -81,7 +97,7 @@ u can deploy on railway or whatever you want pretty much
 # INVITE LINK
 https://discord.com/oauth2/authorize?client_id=1495096883327139971&permissions=277025467398&integration_type=0&scope=bot
 
-# LAST UPDATE: 4/21/2026 11:28 PM GMT+3
+# LAST UPDATE: 4/22/2026 7:15 PM GMT+3
 # COMPLETE README.MD AS OF LAST UPDATE
 
 

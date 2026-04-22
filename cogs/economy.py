@@ -103,7 +103,7 @@ class Economy(commands.Cog):
             return
         
         guild_id = interaction.guild_id
-        user_id = interaction.user_id
+        user_id = interaction.user.id
         current_time = time.time()
 
         last_daily = await self.repo.get_cooldown(guild_id, user_id, "daily")
@@ -126,7 +126,7 @@ class Economy(commands.Cog):
             return
 
         guild_id = interaction.guild_id
-        user_id = interaction.user_id
+        user_id = interaction.user.id
         current_time = time.time()
 
         last_work = await self.repo.get_cooldown(guild_id, user_id, "work")
@@ -149,7 +149,7 @@ class Economy(commands.Cog):
         if not interaction.guild_id:
             return
         
-        if member.id == interaction.user_id:
+        if member.id == interaction.user.id:
             await interaction.response.send_message("bro you cannot rob yourself 😭", ephemeral=True)
             return
         

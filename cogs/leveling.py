@@ -67,7 +67,7 @@ class Leveling(commands.Cog):
             try: 
                 await message.channel.send(f"{message.author.mention} has reached level **{new_level}**")
 
-                rewards = await self.settings_repo.get_role_Rewards(guild_id)
+                rewards = await self.settings_repo.get_role_rewards(guild_id)
                 for lvl_str, role_id, in rewards.items():
                     if new_level >= int(lvl_str):
                         role = message.guild.get_role(role_id)
@@ -116,13 +116,13 @@ class Leveling(commands.Cog):
         
         all_xp = await self.repo.get_all_xp(interaction.guild_id)
         if not all_xp:
-            await interaction.response.send_messaage("No one has any XP yet.")
+            await interaction.response.send_message("No one has any XP yet.")
             return
         
         sorted_xp = sorted(all_xp.items(), key=lambda x: x[1], reverse=True)[:10]
 
         embed = discord.Embed(
-            title=f"XP Leaderboard for {interaction.guild_name}",
+            title=f"XP Leaderboard for {interaction.guild.name}",
             color=discord.Color.gold()
         )
 

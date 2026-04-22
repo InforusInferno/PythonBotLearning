@@ -140,6 +140,18 @@ class TamagotchiCog(commands.Cog):
 
         embed.description = desc
         await interaction.response.send_message(embed=embed)
+    
+    async def cog_app_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.CommandOnCooldown):
+            minutes = int(error.retry_after // 60)
+            seconds = int(error.retry_after % 60)
+            time_str = f"{minutes}m {seconds}s" if minutes > 0 else f"{seconds}s"
+            await interaction.response.send_message(
+                f"Cooldown. Try again in **{time_str}**.", 
+                ephemeral=True
+            )
+        else:
+            logger.error(f"Error in tamagotchi command: {error}")
 
     async def _interact(self, interaction: discord.Interaction, satiety=0, energy=0, happiness=0, hygiene=0, discipline=0, msg="Done!", can_refuse=True):
         pet = await self._get_or_create_pet(interaction)
@@ -168,45 +180,56 @@ class TamagotchiCog(commands.Cog):
         await interaction.response.send_message(f"{pet['name']}: {msg}")
     
     @app_commands.command(name="feed", description="Feed your pet")
+    @app_commands.checks.cooldown(1, 600, key=lambda i: i.user.id)
     async def feed(self, interaction: discord.Interaction):
         await self._interact(interaction, satiety=20, hygiene=-5, msg="yum yum")
 
     @app_commands.command(name="sleep", description="Snooze")
+    @app_commands.checks.cooldown(1, 1800, key=lambda i: i.user.id)
     async def sleep(self, interaction: discord.Interaction):
         await self._interact(interaction, energy=40, msg="ZzZzZzZzZz")
     
     @app_commands.command(name="pet", description="pet your pet")
+    @app_commands.checks.cooldown(1, 300, key=lambda i: i.user.id)
     async def pet_cmd(self, interaction: discord.Interaction): # Fixed function name
         await self._interact(interaction, happiness=15, msg="pat pat pat")
     
     @app_commands.command(name="play", description="games :D")
+    @app_commands.checks.cooldown(1, 300, key=lambda i: i.user.id)
     async def play_cmd(self, interaction: discord.Interaction): # Fixed function name
         await self._interact(interaction, happiness=25, energy=-15, hygiene=-10, msg="your pet has unlocked the zoomies")
 
     @app_commands.command(name="hit", description="Punish >:(")
+    @app_commands.checks.cooldown(1, 900, key=lambda i: i.user.id)
     async def hit_cmd(self, interaction: discord.Interaction): # Fixed function name
         await self._interact(interaction, happiness=-30, discipline=10, msg="OWWW", can_refuse=False)
     
     @app_commands.command(name="poke", description="Poke your pet")
+    @app_commands.checks.cooldown(1, 300, key=lambda i: i.user.id)
     async def poke(self, interaction: discord.Interaction):
         await self._interact(interaction, happiness=-5, energy=5, msg="Boop! Woke em up")
 
     @app_commands.command(name="clean", description="take a shower")
+    @app_commands.checks.cooldown(1, 600, key=lambda i: i.user.id)
     async def clean(self, interaction: discord.Interaction):
         await self._interact(interaction, hygiene=40, msg="squeaky clean!")
 
     @app_commands.command(name="hug", description="give a hug :D")
+    @app_commands.checks.cooldown(1, 300, key=lambda i: i.user.id)
     async def hug(self, interaction: discord.Interaction):
         await self._interact(interaction, happiness=30, msg="awwwww")
 
     @app_commands.command(name="nudge", description="give a nudge")
+    @app_commands.checks.cooldown(1, 300, key=lambda i: i.user.id)
     async def nudge(self, interaction: discord.Interaction):
         await self._interact(interaction, discipline=5, happiness=-2, msg="pet straightened up now", can_refuse=False)
 
     @app_commands.command(name="praise", description="praise pet")
+    @app_commands.checks.cooldown(1, 300, key=lambda i: i.user.id)
     async def praise(self, interaction: discord.Interaction):
         await self._interact(interaction, discipline=10, happiness=10, msg="YAYYYY", can_refuse=False)
 
     @app_commands.command(name="time_out", description="time out")
+    @app_commands.checks.cooldown(1, 900, key=lambda i: i.user.id)
     async def time_out(self, interaction: discord.Interaction):
         await self._interact(interaction, discipline=20, happiness=-20, msg=":(", can_refuse=False)

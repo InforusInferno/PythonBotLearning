@@ -15,6 +15,7 @@ more features coming soon in the next 2 months
 -**Economy**
 -**Test Cmds**
 -**Tamagotchi**
+-**Polls**
 
 
 ## Command List
@@ -76,6 +77,9 @@ more features coming soon in the next 2 months
 `/automod remove [word]` - removing from the naughty list
 `/automod list` - see what's on the naughty list
 
+# Polls
+ `/poll [question] [option1] [option2] ...` - Supports up to 10 options.
+
 # Server Config
 `/config logs [channel]` - set audit log channel
 `/config welcome_channel [channel]` - set welcome channel
@@ -97,7 +101,7 @@ u can deploy on railway or whatever you want pretty much
 # INVITE LINK
 https://discord.com/oauth2/authorize?client_id=1495096883327139971&permissions=277025467398&integration_type=0&scope=bot
 
-# LAST UPDATE: 4/22/2026 7:15 PM GMT+3
+# LAST UPDATE: 4/22/2026 9:44 PM GMT+3
 # COMPLETE README.MD AS OF LAST UPDATE
 
 

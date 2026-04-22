@@ -108,10 +108,10 @@ class TamagotchiCog(commands.Cog):
             color=discord.Color.blue()
         )
         embed.add_field(name="Condition", value=self._get_mood_emoji(pet), inline=False)
-        embed.add_field(name="Satiety (Hunger)", value=f"{math.floor(pet['satiety'])}/100", inline=True)
-        embed.add_field(name="Energy (Sleep)", value=f"{math.floor(pet['energy'])}/100", inline=True)
+        embed.add_field(name="Hunger", value=f"{math.floor(pet['satiety'])}/100", inline=True)
+        embed.add_field(name="Energy", value=f"{math.floor(pet['energy'])}/100", inline=True)
         embed.add_field(name="Happiness", value=f"{math.floor(pet['happiness'])}/100", inline=True)
-        embed.add_field(name="Hygiene (Clean)", value=f"{math.floor(pet['hygiene'])}/100", inline=True)
+        embed.add_field(name="Hygiene", value=f"{math.floor(pet['hygiene'])}/100", inline=True)
         embed.add_field(name="Discipline", value=f"{math.floor(pet['discipline'])}/100", inline=True)
         
         embed.set_footer(text=f"Pet born on {time.strftime('%Y-%m-%d', time.localtime(pet['born_at']))}")

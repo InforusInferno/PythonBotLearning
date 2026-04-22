@@ -371,3 +371,25 @@ class TamagotchiRepository(BaseJSONRepository):
         await self.save_pet(user_id, pet_data)
         return pet_data
     
+class PollRepository(BaseJSONRepository):
+    def __init__(self, file_path: str = "data/polls.json"):
+        super().__init__(file_path, default_data={})
+
+    async def save_poll(self, message_id : int, poll_data: dict[str, Any]) -> None:
+        data = await self.read()
+        data[str(message_id)] = poll_data
+        await self.write(data)
+
+    async def get_poll(self, message_id: int) -> dict[str, Any] | None:
+        data = await self.read()
+        return data.get(str(message_id))
+    
+    async def delete_poll(self, message_id: int) -> None:
+        data = await self.read()
+        str_id = str(message_id)
+        if str_id in data:
+            del data[str_id]
+            await self.write(data)
+        
+    async def get_all_polls(self) -> dict[str, Any]:
+        return await self.read()

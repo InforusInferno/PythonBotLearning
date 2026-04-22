@@ -31,6 +31,10 @@ class Tamagotchi(commands.Cog):
         avg_health = ([pet["satiety" + [pet["energy"] + pet["happiness"] + pet["hygeine"]]]])/4
         if avg_health <= 0:
             pet["died_at"] = current_time
+            pet ["leave_reason"] = "deceased"
+        elif pet["happiness"] <= 0 and pet["discipline"] < 15:
+            pet["died_at"] = current_time
+            pet["leave_reason"] = "ran_away"
 
 
         return pet
@@ -63,10 +67,16 @@ class Tamagotchi(commands.Cog):
         
         pet = self._apply_decay(pet)
 
-        if pet.get("died_at"):
+        if pet.get("leave_reason"):
+            reason = pet["leave_reason"]
             await self.repo.add_to_history(interaction.user.id, pet)
             await self.repo.save_pet(interaction.user.id, None)
-            await interaction.response.send_message(f"Your pet {pet["name"]} has died due to neglect. Use `/pet_history` to visit the graveyard or `pet_create` to adopt a new one")
+            
+            if reason == "deceased":
+                msg = f"Your pet {pet["name"]} has died due to neglect. Use `/pet_history` to visit the graveyard or `pet_create` to adopt a new one"
+            else:
+                msg = f"Your pet {pet["name"]} ran away"
+            await interaction.response.send_message(f"{msg}\n Use `/pet_history` to visit graveyard or `/pet_create` to adopt a new one")
             return None
         return pet
     
@@ -115,8 +125,11 @@ class Tamagotchi(commands.Cog):
             lifespan = pet["died_at"] - pet["born_at"]
             days = int(lifespan // 86400)
             hours = int((lifespan % 86400) // 3600)
+
+            reason = pet.get("leave_reason", "deceased")
+            status = "Passed Away" if reason == "deceased" else "Ran Away"
             
-            desc += f"{i}. {pet['name']}\nLived: {days}d {hours}h | Passed: <t:{int(pet['died_at'])}:d>\n\n"
+            desc += f"**{i}. {pet['name']}** ({status})\nLived: {days}d {hours}h | Date: <t:{int(pet['died_at'])}:d>\n\n"
             if i>= 10: break
 
         embed.description = desc

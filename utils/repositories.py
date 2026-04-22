@@ -311,10 +311,13 @@ class TaskRepository(BaseJSONRepository):
         return due_tasks
 
 class TamagotchiRepository(BaseJSONRepository):
+    """Repository for managing Tamagotchi pet stats and history."""
+    
     def __init__(self, file_path: str = "data/tamagotchi.json"):
         super().__init__(file_path, default_data={})
 
     async def _get_raw_user_data(self, user_id: int) -> dict[str, Any]:
+        """Internal helper to get or initialize user data structure."""
         data = await self.read()
         str_id = str(user_id)
         
@@ -322,7 +325,7 @@ class TamagotchiRepository(BaseJSONRepository):
             data[str_id] = {"active": None, "history": []}
             return data[str_id]
             
-        # migration if there is old
+        # Migration logic for old structure
         if isinstance(data[str_id], dict) and "active" not in data[str_id]:
             old_pet = data[str_id]
             data[str_id] = {"active": old_pet, "history": []}
@@ -361,7 +364,8 @@ class TamagotchiRepository(BaseJSONRepository):
             "discipline": 50.0,
             "last_update": time.time(),
             "born_at": time.time(),
-            "died_at": None
+            "died_at": None,
+            "leave_reason": None
         }
         await self.save_pet(user_id, pet_data)
         return pet_data

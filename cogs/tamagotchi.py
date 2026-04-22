@@ -10,37 +10,42 @@ from utils.repositories import TamagotchiRepository
 
 logger = logging.getLogger(__name__)
 
-class Tamagotchi(commands.Cog):
+async def setup(bot):
+    """Entry point for the extension."""
+    await bot.add_cog(TamagotchiCog(bot))
+
+class TamagotchiCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.repo = TamagotchiRepository()
-        self.decay_rate = 2
+        self.decay_rate = 2.0
 
     def _apply_decay(self, pet: dict) -> dict:
         current_time = time.time()
         time_diff = current_time - pet["last_update"]
-        hours_passed = time_diff / 3600
+        hours_passed = time_diff / 3600.0
 
         decay_amount = hours_passed * self.decay_rate
 
-        for stat in ["satiety", "energy", "happiness", "hygeine"]:
-            pet[stat] = max(0, pet[stat] - decay_amount)
+        # Fixed spelling: hygiene
+        for stat in ["satiety", "energy", "happiness", "hygiene"]:
+            pet[stat] = max(0.0, pet[stat] - decay_amount)
         
         pet["last_update"] = current_time
 
-        avg_health = ([pet["satiety" + [pet["energy"] + pet["happiness"] + pet["hygeine"]]]])/4
+        # Fixed math syntax
+        avg_health = (pet["satiety"] + pet["energy"] + pet["happiness"] + pet["hygiene"]) / 4
         if avg_health <= 0:
             pet["died_at"] = current_time
-            pet ["leave_reason"] = "deceased"
+            pet["leave_reason"] = "deceased"
         elif pet["happiness"] <= 0 and pet["discipline"] < 15:
             pet["died_at"] = current_time
             pet["leave_reason"] = "ran_away"
 
-
         return pet
     
     def _get_mood_emoji(self, pet: dict) -> str:
-        avg_health = ([pet["satiety" + [pet["energy"] + pet["happiness"] + pet["hygeine"]]]])/4
+        avg_health = (pet["satiety"] + pet["energy"] + pet["happiness"] + pet["hygiene"]) / 4
         if avg_health > 80:
             status = "😛 Very Happy"
         elif avg_health > 50:
@@ -62,7 +67,7 @@ class Tamagotchi(commands.Cog):
     async def _get_or_create_pet(self, interaction: discord.Interaction) -> Optional[dict]:
         pet = await self.repo.get_pet(interaction.user.id)
         if not pet:
-            await interaction.response.send_message("You dont have a pet! Use `/pet_create` to adopt one")        
+            await interaction.response.send_message("You don't have a pet! Use `/pet_create` to adopt one.")        
             return None
         
         pet = self._apply_decay(pet)
@@ -72,17 +77,18 @@ class Tamagotchi(commands.Cog):
             await self.repo.add_to_history(interaction.user.id, pet)
             await self.repo.save_pet(interaction.user.id, None)
             
+            # Fixed f-string quotes
             if reason == "deceased":
-                msg = f"Your pet {pet["name"]} has died due to neglect. Use `/pet_history` to visit the graveyard or `pet_create` to adopt a new one"
+                msg = f"Your pet {pet['name']} has died due to neglect."
             else:
-                msg = f"Your pet {pet["name"]} ran away"
-            await interaction.response.send_message(f"{msg}\n Use `/pet_history` to visit graveyard or `/pet_create` to adopt a new one")
+                msg = f"Your pet {pet['name']} ran away."
+            await interaction.response.send_message(f"{msg}\nUse `/pet_history` to visit the graveyard or `/pet_create` to adopt a new one.")
             return None
         return pet
     
     @app_commands.command(name="pet_create", description="Adopt a pet")
     async def pet_create(self, interaction: discord.Interaction, name: str):
-        existing = await self.repo.get_pet(interaction.discord.id)
+        existing = await self.repo.get_pet(interaction.user.id) # Fixed .user.id
         if existing:
             await interaction.response.send_message(f"You already have a pet named {existing['name']}!", ephemeral=True)
             return
@@ -130,7 +136,7 @@ class Tamagotchi(commands.Cog):
             status = "Passed Away" if reason == "deceased" else "Ran Away"
             
             desc += f"**{i}. {pet['name']}** ({status})\nLived: {days}d {hours}h | Date: <t:{int(pet['died_at'])}:d>\n\n"
-            if i>= 10: break
+            if i >= 10: break
 
         embed.description = desc
         await interaction.response.send_message(embed=embed)
@@ -170,18 +176,18 @@ class Tamagotchi(commands.Cog):
         await self._interact(interaction, energy=40, msg="ZzZzZzZzZz")
     
     @app_commands.command(name="pet", description="pet your pet")
-    async def sleep(self, interaction: discord.Interaction):
+    async def pet_cmd(self, interaction: discord.Interaction): # Fixed function name
         await self._interact(interaction, happiness=15, msg="pat pat pat")
     
     @app_commands.command(name="play", description="games :D")
-    async def sleep(self, interaction: discord.Interaction):
+    async def play_cmd(self, interaction: discord.Interaction): # Fixed function name
         await self._interact(interaction, happiness=25, energy=-15, hygiene=-10, msg="your pet has unlocked the zoomies")
 
     @app_commands.command(name="hit", description="Punish >:(")
-    async def sleep(self, interaction: discord.Interaction):
+    async def hit_cmd(self, interaction: discord.Interaction): # Fixed function name
         await self._interact(interaction, happiness=-30, discipline=10, msg="OWWW", can_refuse=False)
     
-    @app_commands.command(name="poke", description="Poke your pet to make them pay attention")
+    @app_commands.command(name="poke", description="Poke your pet")
     async def poke(self, interaction: discord.Interaction):
         await self._interact(interaction, happiness=-5, energy=5, msg="Boop! Woke em up")
 
@@ -197,10 +203,10 @@ class Tamagotchi(commands.Cog):
     async def nudge(self, interaction: discord.Interaction):
         await self._interact(interaction, discipline=5, happiness=-2, msg="pet straightened up now", can_refuse=False)
 
-    @app_commands.command(name="praise", description="give your pet a compliment :0")
+    @app_commands.command(name="praise", description="praise pet")
     async def praise(self, interaction: discord.Interaction):
         await self._interact(interaction, discipline=10, happiness=10, msg="YAYYYY", can_refuse=False)
 
-    @app_commands.command(name="time_out", description="time out >:(")
+    @app_commands.command(name="time_out", description="time out")
     async def time_out(self, interaction: discord.Interaction):
-        await self._interact(interaction, discipline=20, happiness=-20, msg=":(", can_refuse=False)    
+        await self._interact(interaction, discipline=20, happiness=-20, msg=":(", can_refuse=False)

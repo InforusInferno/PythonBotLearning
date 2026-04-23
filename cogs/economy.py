@@ -118,7 +118,7 @@ class Economy(commands.Cog):
         await self.repo.add_balance(guild_id, user_id, reward)
         await self.repo.set_cooldown(guild_id, user_id, "daily", current_time)
 
-        await interaction.response.send_message("Daily claimed. Received {credits} credits.")
+        await interaction.response.send_message(f"Daily claimed. Received {credits} credits.")
 
     @app_commands.command(name="work", description="be empl*yed and get a j*b (and  money)")
     async def work(self, interaction: discord.Interaction) -> None:

@@ -1,6 +1,6 @@
 ### FOR LEARNING!!
 
-Bot with a study timer, trivia, basic moderation tools
+multipurpose bot 
 more features coming soon in the next 2 months
 
 
@@ -16,6 +16,7 @@ more features coming soon in the next 2 months
 -**Test Cmds**
 -**Tamagotchi**
 -**Polls**
+-**Reaction Roles**
 
 
 ## Command List
@@ -80,6 +81,9 @@ more features coming soon in the next 2 months
 # Polls
  `/poll [question] [option1] [option2] ...` - Supports up to 10 options.
 
+ # Reaction Roles
+`/roles_create` - Creates a panel for reaction roles
+
 # Server Config
 `/config logs [channel]` - set audit log channel
 `/config welcome_channel [channel]` - set welcome channel
@@ -101,7 +105,7 @@ u can deploy on railway or whatever you want pretty much
 # INVITE LINK
 https://discord.com/oauth2/authorize?client_id=1495096883327139971&permissions=277025467398&integration_type=0&scope=bot
 
-# LAST UPDATE: 4/22/2026 9:44 PM GMT+3
+# LAST UPDATE: 4/23/2026 2:35 PM GMT+3
 # COMPLETE README.MD AS OF LAST UPDATE
 
 

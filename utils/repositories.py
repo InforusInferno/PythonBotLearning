@@ -393,3 +393,26 @@ class PollRepository(BaseJSONRepository):
         
     async def get_all_polls(self) -> dict[str, Any]:
         return await self.read()
+
+class ReactionRoleRepository(BaseJSONRepository):
+    def __init__(self, file_path: str = "data/reaction_roles.json"):
+        super().__init__(file_path, default_data = {})
+    
+    async def save_panel(self, message_id: int, panel_data: dict[str, Any]) -> None:
+        data = await self.read()
+        data[str(message_id)] = panel_data
+        await self.write(data)
+
+    async def get_panel(self, message_id: int) -> dict[str, Any] | None:
+        data = await self.read()
+        return data.get(str(message_id))
+    
+    async def delete_panel(self, message_id: int) -> None:
+        data = await self.read()
+        str_id = str(message_id)
+        if str_id in data:
+            del data[str_id]
+            await self.write(data)
+
+    async def get_all_panels(self) -> dict[str, Any]:
+        return await self.read()

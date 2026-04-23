@@ -42,7 +42,7 @@ class RoleSelect(discord.ui.Select):
         super().__init__(
             placeholder="Select your roles..",
             min_values=0,
-            max_values=len[roles],
+            max_values=len(roles),
             options=options,
             custom_id=f"rr:select:{panel_id}"
         )
@@ -150,5 +150,5 @@ class ReactionRoles(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(ReactionRoles(bot))
-    
+
 

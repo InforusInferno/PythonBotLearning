@@ -135,7 +135,7 @@ class Economy(commands.Cog):
             await interaction.response.send_message(f"You're exhausted. Wait {remaining // 60}m", ephemeral=True)
             return
         
-        jobs = ["You worked as a librarian", "You sold a bunch of newspapers", "You won the local chess championship", "You won a giveaway", "You met verity", "You arrested a bunch of guys for fraud"]
+        jobs = ["You worked as a librarian", "You sold a bunch of newspapers", "You won the local chess championship", "You won a giveaway", "You met verity", "You arrested a bunch of guys for fraud", "You built a world-ending robot for the government", "You overthrew a world leader for the CIA", "You worked as a taxi driver", "You became the real-life Spiderman", "You tried fighting crime like batman", "You built a house", "You worked as a cashier", "You flipped burgers at McDonalds", "You earned a paid scholarship", "You found a bunch of money on the street", "You returned a lost wallet", "You snitched on your friend for a crime", "You sold newspapers", "You ran a stupid meme account on twitter", "Your AI slop project actually worked", "You became a twitch streamer", "You became a youtuber", "You opened your own restaurant", "You became a food tester", "You worked as a model", "You made it into Guiness World Records", "You found a treasure at the beach", "You found the remains of the titanic", "You managed a sunday league team", "You worked a 12-hour shift as a therapist"]
         job = random.choice(jobs)
         reward = random.randint(WORK_MIN_CREDITS, WORK_MAX_CREDITS)
 

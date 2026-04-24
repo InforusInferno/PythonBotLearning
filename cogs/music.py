@@ -9,7 +9,9 @@ from functools import partial
 logger = logging.getLogger(__name__)
 
 
-yt_dlp.utils.bug_reports_message = lambda: ''
+def silence_bug_reports():
+    return ''
+yt_dlp.utils.bug_reports_message = silence_bug_reports
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -100,13 +102,8 @@ class MusicPlayer:
             if not self.guild.voice_client:
                 await self._channel.send("I've been disconnected from voice!")
                 return self.destroy(self.guild)
-            def toggle_next(*args, **kwargs):
-                self.bot.loop.call_soon_threadsafe(self.next.set)
-            self.guild.voice_client.play(source, after=toggle_next)
 
-            def toggle_next(error):
-                if error:
-                    logger.error(f"Player error: {error}")
+            def toggle_next(*args, **kwargs):
                 self.bot.loop.call_soon_threadsafe(self.next.set)
 
             self.guild.voice_client.play(source, after=toggle_next)
@@ -119,6 +116,9 @@ class MusicPlayer:
 
             source.cleanup()
             self.current = None
+
+    def destroy(self, guild):
+        return self.bot.loop.create_task(self._cog.cleanup(guild))
             
     def destroy(self, guild):
         return self.bot.loop.create_task(self._cog.cleanup(guild))

@@ -78,7 +78,6 @@ class MusicPlayer:
         while not self.bot.is_closed():
             self.next.clear()
             try:
-                # 5-minute timeout for inactivity
                 async with asyncio.timeout(300):
                     source = await self.queue.get()
             except asyncio.TimeoutError:
@@ -97,13 +96,15 @@ class MusicPlayer:
             if not self.guild.voice_client:
                 return self.destroy(self.guild)
 
-            self.guild.voice_client.play(source, after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
+            def toggle_next(error):
+                if error:
+                    logger.error(f"Player error: {error}")
+                self.bot.loop.call_soon_threadsafe(self.next.set)
+
+            self.guild.voice_client.play(source, after=toggle_next)
             
             embed = discord.Embed(title="Now Playing 🎵", description=f"[{source.title}]({source.webpage_url})", color=discord.Color.green())
             embed.set_thumbnail(url=source.thumbnail)
-            if source.duration:
-                embed.add_field(name="Duration", value=f"{int(source.duration // 60)}:{int(source.duration % 60):02d}")
-            
             self.np = await self._channel.send(embed=embed)
 
             await self.next.wait()
@@ -113,6 +114,7 @@ class MusicPlayer:
             
     def destroy(self, guild):
         return self.bot.loop.create_task(self._cog.cleanup(guild))
+
 
 class Music(commands.Cog):
     def __init__(self, bot):

@@ -26,7 +26,7 @@ ytdl_format_options = {
     'default_search': 'auto',
     'source_address': '0.0.0.0',
     'youtube_include_dash_manifest': False,
-    'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
+    'extractor_args': {'youtube': {'player_client': ['android_music','android', 'web']}},
 }
 
 ffmpeg_options = {

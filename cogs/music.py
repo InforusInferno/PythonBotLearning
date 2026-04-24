@@ -42,18 +42,21 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.thumbnail = data.get('thumbnail')
         self.webpage_url = data.get('webpage_url')
 
-    @classmethod
-    async def from_url(cls, url, *, loop=None, stream=True):
-        loop = loop or asyncio.get_event_loop()
+        @classmethod
+        async def from_url(cls, url, *, loop=None, stream=True):
+            loop = loop or asyncio.get_event_loop()
         
-        to_run = partial(ytdl.extract_info, url, download=not stream)
-        data = await loop.run_in_executor(None, to_run)
+            def fetch_data():
+                return ytdl.extract_info(url, download=not stream)
 
-        if 'entries' in data:
-            data = data['entries'][0]
+            data = await loop.run_in_executor(None, fetch_data)
 
-        filename = data['url'] if stream else ytdl.prepare_filename(data)
-        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+            if 'entries' in data:
+                data = data['entries'][0]
+
+            filename = data['url'] if stream else ytdl.prepare_filename(data)
+            return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+
 
 
 class MusicPlayer:

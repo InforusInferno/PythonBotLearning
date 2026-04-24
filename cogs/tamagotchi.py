@@ -10,6 +10,35 @@ from utils.repositories import TamagotchiRepository
 
 logger = logging.getLogger(__name__)
 
+# MESSAGE LIBRARY FOR CUSTOM RESPONSES
+#PET_ACTIONS = {
+#    "feed": {
+#        "messages": [
+#            "Nom nom nom",
+#            "Yummyyy",
+#            "Yum yum yum",
+#            "Mmmmm"
+#        ],
+#        "gifs": [
+#            ""
+#        ]
+#    },
+#    "sleep": {
+#        "messages": [
+#            "ZzZzZz",
+#            "Snoooze"
+#        ],
+#        "gifs": [
+#            ""
+#        ]
+#    },
+#    "play": {
+#        "messages": [
+#            ""
+#        ]
+#    }
+#}
+
 async def setup(bot):
     """Entry point for the extension."""
     await bot.add_cog(TamagotchiCog(bot))

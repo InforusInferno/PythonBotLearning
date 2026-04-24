@@ -9,7 +9,7 @@ from functools import partial
 logger = logging.getLogger(__name__)
 
 
-def silence_bug_reports():
+def silence_bug_reports(*args, **kwargs):
     return ''
 yt_dlp.utils.bug_reports_message = silence_bug_reports
 

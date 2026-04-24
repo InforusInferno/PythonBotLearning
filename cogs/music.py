@@ -98,7 +98,11 @@ class MusicPlayer:
             self.current = source
 
             if not self.guild.voice_client:
+                await self._channel.send("I've been disconnected from voice!")
                 return self.destroy(self.guild)
+            def toggle_next(*args, **kwargs):
+                self.bot.loop.call_soon_threadsafe(self.next.set)
+            self.guild.voice_client.play(source, after=toggle_next)
 
             def toggle_next(error):
                 if error:

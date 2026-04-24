@@ -13,6 +13,7 @@ class UtilityBot(commands.Bot):
         intents = discord.Intents.default()
         intents.members = True
         intents.message_content = True
+        intents.voice_states = True
 
         super().__init__(
             command_prefix=commands.when_mentioned_or('!'),

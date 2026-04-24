@@ -130,7 +130,7 @@ class Music(commands.Cog):
 
         return player
 
-    @app_commands.command(name="play", description="Play music from URL/Search")
+    @app_commands.command(name="mplay", description="Play music from URL/Search")
     async def play(self, interaction: discord.Interaction, search: str):
         await interaction.response.defer()
         
@@ -153,7 +153,7 @@ class Music(commands.Cog):
         await player.queue.put(source)
         await interaction.followup.send(f"Queued: {source.title}")
     
-    @app_commands.command(name="skip", description="Skip current song")
+    @app_commands.command(name="mskip", description="Skip current song")
     async def skip(self, interaction: discord.Interaction):
         vc = interaction.guild.voice_client
 
@@ -166,7 +166,7 @@ class Music(commands.Cog):
         vc.stop()
         await interaction.response.send_message("Skipped")
     
-    @app_commands.command(name="stop", description="Stop and disconnect")
+    @app_commands.command(name="mstop", description="Stop and disconnect")
     async def stop(self, interaction:discord.Interaction):
         vc = interaction.guild.voice_client
 
@@ -176,7 +176,7 @@ class Music(commands.Cog):
         await self.cleanup(interaction.guild)
         await interaction.response.send_message("Stopped and disconnected.")
     
-    @app_commands.command(name="queue", description="Show queue")
+    @app_commands.command(name="mqueue", description="Show queue")
     async def queue_info(self, interaction:discord.Interaction):
         vc = interaction.guild.voice_client
 
@@ -194,7 +194,7 @@ class Music(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="now_playing", description="Details of currently playing song")
+    @app_commands.command(name="mnow_playing", description="Details of currently playing song")
     async def now_playing(self, interaction: discord.Interaction):
         vc = interaction.guild.voice_client
 
@@ -215,5 +215,5 @@ class Music(commands.Cog):
         player.np = await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
-    await bot.cog_add(Music(bot))
+    await bot.add_cog(Music(bot))
         

@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libnacl-dev \
     python3-dev \
+    cmake \
+    g++ \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .

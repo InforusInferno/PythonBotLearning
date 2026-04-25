@@ -30,10 +30,11 @@ ytdl_format_options = {
     'cachedir': False,
     'geo_bypass': True,
     'youtube_include_dash_manifest': False,
+    'youtube_include_hls_manifest': False,
     'http_chunk_size': 10485760,
     'extractor_args': {
         'youtube': {
-            'player_client': ['web', 'tv', 'web_embedded'],
+            'player_client': ['ios', 'android', 'tv'],
             'po_token': [f"web+{os.getenv('YT_PO_TOKEN')}"] if os.getenv('YT_PO_TOKEN') else None,
             'visitor_data': os.getenv('YT_VISITOR_DATA')
         }

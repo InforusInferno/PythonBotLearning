@@ -195,6 +195,12 @@ class EconomyRepository(BaseJSONRepository):
         str_user = str(user_id)
         return data.get(str_guild, {}).get(str_user, {}).get(f"last_{cooldown_type}", 0)
     
+    async def get_all_balances(self, guild_id: int) -> dict[str, int]:
+        data = await self.read()
+        str_guild = str(guild_id)
+        guild_data = data.get(str_guild, {})
+        return {user_id: user_info.get("balance", 0) for user_id, user_info in guild_data.items()}
+    
 class SettingsRepository(BaseJSONRepository):
     def __init__(self, file_path: str = "data/settings.json"):
         super().__init__(file_path, default_data={})

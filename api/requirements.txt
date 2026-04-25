@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+python-multiport
+python-jose[cryptography]
+passlib[bcrypt]
+httpx
+python-dotenv

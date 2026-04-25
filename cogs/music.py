@@ -29,8 +29,8 @@ ytdl_format_options = {
     'source_address': '0.0.0.0',
     'cachedir': False,
     'geo_bypass': True,
-    'youtube_include_dash_manifest': False,
-    'youtube_include_hls_manifest': False,
+    'youtube_include_dash_manifest': True,
+    'youtube_include_hls_manifest': True,
     'http_chunk_size': 10485760,
     'extractor_args': {
         'youtube': {

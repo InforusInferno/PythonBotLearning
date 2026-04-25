@@ -30,13 +30,11 @@ ytdl_format_options = {
     'cachedir': False,
     'geo_bypass': True,
     'youtube_include_dash_manifest': False,
-    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'referer': 'https://www.youtube.com/',
     'http_chunk_size': 10485760,
     'extractor_args': {
         'youtube': {
             'player_client': ['web', 'tv', 'web_embedded'],
-            'po_token': os.getenv('YT_PO_TOKEN'),
+            'po_token': [f"web+{os.getenv('YT_PO_TOKEN')}"] if os.getenv('YT_PO_TOKEN') else None,
             'visitor_data': os.getenv('YT_VISITOR_DATA')
         }
     },

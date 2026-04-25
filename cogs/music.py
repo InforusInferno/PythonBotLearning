@@ -24,6 +24,7 @@ ytdl_format_options = {
     'logtostderr': False,
     'quiet': True,
     'no_warnings': True,
+    'check_formats': False,
     'default_search': 'auto',
     'source_address': '0.0.0.0',
     'cachedir': False,
@@ -31,9 +32,10 @@ ytdl_format_options = {
     'youtube_include_dash_manifest': False,
     'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'referer': 'https://www.youtube.com/',
+    'http_chunk_size': 10485760,
     'extractor_args': {
         'youtube': {
-            'player_client': ['android', 'ios']
+            'player_client': ['tv', 'android', 'ios', 'web_embedded']
         }
     },
 }

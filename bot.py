@@ -35,7 +35,6 @@ class UtilityBot(commands.Bot):
             "cogs.tamagotchi",
             "cogs.polls",
             "cogs.reaction_roles",
-            "cogs.music"
         ]
 
         for extension in initial_extensions:

@@ -34,9 +34,7 @@ ytdl_format_options = {
     'http_chunk_size': 10485760,
     'extractor_args': {
         'youtube': {
-            'player_client': ['ios', 'android', 'tv'],
-            'po_token': [f"web+{os.getenv('YT_PO_TOKEN')}"] if os.getenv('YT_PO_TOKEN') else None,
-            'visitor_data': os.getenv('YT_VISITOR_DATA')
+            'player_client': ['tv']
         }
     },
 }

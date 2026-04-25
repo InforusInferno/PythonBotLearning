@@ -4,6 +4,7 @@ from discord.ext import commands
 import asyncio
 import yt_dlp
 import logging
+import os
 from functools import partial
 
 logger = logging.getLogger(__name__)
@@ -25,9 +26,28 @@ ytdl_format_options = {
     'no_warnings': True,
     'default_search': 'auto',
     'source_address': '0.0.0.0',
-    'youtube_include_dash_manifest': False,
-    'extractor_args': {'youtube': {'player_client': ['android_music','android', 'web']}},
+    'cachedir': False,           
+    'geo_bypass': True,          
+    'youtube_include_dash_manifest': False, 
 }
+
+
+COOKIES_FILE = 'cookies.txt'
+if not os.path.exists(COOKIES_FILE):
+    cookies_content = os.getenv('YT_COOKIES')
+    if cookies_content:
+        try:
+            with open(COOKIES_FILE, 'w') as f:
+                f.write(cookies_content)
+            logger.info("Successfully created cookies.txt from environment variable")
+        except Exception as e:
+            logger.error("Failed to create cookies.txt from environment variable: {e}")
+
+if os.path.exists(COOKIES_FILE):
+    ytdl_format_options['cookie_file'] = COOKIES_FILE
+    logger.info("Using cookies.txt for YouTube requests")
+else:
+    logger.warning("No cookies.txt found")
 
 ffmpeg_options = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',

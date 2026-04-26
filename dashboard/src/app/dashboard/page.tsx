@@ -54,7 +54,7 @@ function DashboardContent() {
       
       <main style={{ marginLeft: "300px", padding: "4rem 2rem 2rem", width: "100%" }}>
         <header style={{ marginBottom: "3rem" }}>
-          <h1 style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>Welcome back, <span className="accent-text">User</span></h1>
+          <h1 style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>Welcome back, <span className="accent-text">{session?.user?.name || "User"}</span></h1>
           <p style={{ color: "var(--text-muted)" }}>Here's what's happening with your bot ecosystem today.</p>
         </header>
 

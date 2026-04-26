@@ -110,7 +110,7 @@ class Economy(commands.Cog):
         if current_time - last_daily < DAILY_COOLDOWN:
             remaining = int(DAILY_COOLDOWN - (current_time - last_daily))
             hours, remainder = divmod(remaining, 3600)
-            minutes, seconds = divmod(remaining, 60)
+            minutes, seconds = divmod(remainder, 60)
             await interaction.response.send_message(f"You already claimed your daily. Check back in {hours}h, {minutes}m, and {seconds}s.", ephemeral=True)
             return
         

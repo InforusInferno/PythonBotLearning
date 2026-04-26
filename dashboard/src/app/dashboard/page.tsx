@@ -11,10 +11,10 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
   const searchParams = useSearchParams();
+  const guildId = searchParams?.get('guild') || '';
+  const userId = ((session?.user as any)?.id as string | undefined) || '';
 
   useEffect(() => {
-    const guildId = searchParams?.get('guild');
-    const userId = (session?.user as any)?.id;
     const runId = `baseline-${Date.now()}`;
 
     if (!guildId || !userId) {
@@ -26,6 +26,7 @@ function DashboardContent() {
     }
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    setLoading(true);
     // #region agent log
     fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H1_API_BASE_URL',location:'dashboard/page.tsx:api-url',message:'dashboard resolved API base URL',data:{apiUrl:API_URL,guildId,userId},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
@@ -59,7 +60,7 @@ function DashboardContent() {
           ]
         });
       });
-  }, []);
+  }, [guildId, userId]);
 
   if (loading) return <div style={{ color: "white", padding: "2rem" }}>Loading Nebula Dashboard...</div>;
 

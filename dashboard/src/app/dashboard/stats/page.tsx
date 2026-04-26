@@ -3,18 +3,26 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import GlassCard from '@/components/GlassCard';
+import { useSearchParams } from 'next/navigation';
 
 export default function StatsPage() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [type, setType] = useState('xp');
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const guildId = searchParams?.get('guild') || '';
 
   useEffect(() => {
-    const GUILD_ID = "123456789"; // Replace with your real guild ID
     const runId = `baseline-${Date.now()}`;
+    if (!guildId) {
+      setLeaderboard([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
-    const leaderboardUrl = `http://localhost:8000/api/leaderboard/${GUILD_ID}?type=${type}`;
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const leaderboardUrl = `${API_URL}/api/leaderboard/${guildId}?type=${type}`;
     // #region agent log
     fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H1_API_BASE_URL',location:'dashboard/stats/page.tsx:leaderboard-url',message:'stats page using leaderboard URL',data:{leaderboardUrl,type},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
@@ -42,7 +50,7 @@ export default function StatsPage() {
         ]);
         setLoading(false);
       });
-  }, [type]);
+  }, [type, guildId]);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--background)" }}>

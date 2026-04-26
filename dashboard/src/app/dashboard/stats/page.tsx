@@ -15,6 +15,9 @@ export default function StatsPage() {
   useEffect(() => {
     const runId = `baseline-${Date.now()}`;
     if (!guildId) {
+      // #region agent log
+      fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H8_NAV_STATE',location:'dashboard/stats/page.tsx:missing-guild',message:'stats page missing guild query',data:{guildId},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       setLeaderboard([]);
       setLoading(false);
       return;

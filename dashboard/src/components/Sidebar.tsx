@@ -11,12 +11,25 @@ const SidebarContent = () => {
 
   const [guilds, setGuilds] = useState<any[]>([]);
   const currentGuildId = searchParams?.get('guild') || '';
+  const sessionUserId = (session?.user as any)?.id || '';
+  const sessionAccessToken = (session as any)?.accessToken || '';
+
+  useEffect(() => {
+    const runId = `baseline-${Date.now()}`;
+    // #region agent log
+    fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H8_NAV_STATE',location:'components/Sidebar.tsx:route-state',message:'sidebar route state',data:{pathname,currentGuildId,sessionUserIdPresent:Boolean(sessionUserId)},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [pathname, currentGuildId, sessionUserId]);
 
   // Fetch both Discord guilds and bot guilds, then intersect
   useEffect(() => {
     const runId = `baseline-${Date.now()}`;
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    const accessToken = (session as any)?.accessToken;
+    const accessToken = sessionAccessToken;
+    if (!sessionUserId) {
+      setGuilds([]);
+      return;
+    }
 
     // #region agent log
     fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H4_AUTH_OR_TOKEN',location:'components/Sidebar.tsx:session-state',message:'sidebar session state',data:{hasAccessToken:Boolean(accessToken)},timestamp:Date.now()})}).catch(()=>{});
@@ -73,12 +86,16 @@ const SidebarContent = () => {
         // #endregion
         console.error(err);
       });
-  }, [session]);
+  }, [sessionUserId, sessionAccessToken]);
 
   const selectedGuild = guilds.find(g => g.id === currentGuildId);
   const isAdmin = selectedGuild ? (BigInt(selectedGuild.permissions) & BigInt(0x8)) !== BigInt(0) : false;
 
   const selectGuild = (id: string) => {
+    const runId = `baseline-${Date.now()}`;
+    // #region agent log
+    fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H8_NAV_STATE',location:'components/Sidebar.tsx:select-guild',message:'guild selected',data:{pathname,currentGuildId,nextGuildId:id},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     router.push(`${pathname}?guild=${id}`);
   };
 

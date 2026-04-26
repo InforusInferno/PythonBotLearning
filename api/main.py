@@ -2,11 +2,14 @@ import os
 import sys
 import json
 import time
+import asyncio
+import urllib.request
 from typing import Optional, List
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from dotenv import load_dotenv
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -20,6 +23,7 @@ from utils.repositories import (
 )
 
 app = FastAPI(title="HorizonBot API")
+load_dotenv()
 
 def _agent_log(hypothesis_id: str, location: str, message: str, data: dict):
     # #region agent log
@@ -152,14 +156,6 @@ async def complete_task(user_id: int, task_id: int):
         raise HTTPException(status_code=404, detail="Task not found")
     return {"success": True}
 
-@app.get("/api/bot/guilds")
-async def get_bot_guilds():
-    data_path = os.path.join(os.path.dirname(__file__), "..", "data")
-    if not os.path.exists(data_path):
-        return []
-    
-    return [d for d in os.listdir(data_path) if os.path.isdir(os.path.join(data_path, d))]
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
@@ -168,6 +164,26 @@ if __name__ == "__main__":
 async def get_bot_guilds():
     _agent_log("H5_DATA_SOURCE_OR_EMPTY", "api/main.py:get_bot_guilds", "entered get_bot_guilds", {})
     guild_ids = set()
+    token = os.getenv("DISCORD_BOT_TOKEN")
+
+    if token:
+        try:
+            def _fetch_discord_guilds():
+                req = urllib.request.Request(
+                    "https://discord.com/api/users/@me/guilds",
+                    headers={"Authorization": f"Bot {token}"}
+                )
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    return json.loads(response.read().decode("utf-8"))
+            discord_guilds = await asyncio.to_thread(_fetch_discord_guilds)
+            if isinstance(discord_guilds, list):
+                guild_ids.update(str(g.get("id")) for g in discord_guilds if isinstance(g, dict) and g.get("id"))
+                _agent_log("H5_DATA_SOURCE_OR_EMPTY", "api/main.py:get_bot_guilds", "discord guild fetch success", {"discord_count": len(discord_guilds)})
+        except Exception as e:
+            _agent_log("H5_DATA_SOURCE_OR_EMPTY", "api/main.py:get_bot_guilds", "discord guild fetch failed", {"error": str(e)})
+    else:
+        _agent_log("H5_DATA_SOURCE_OR_EMPTY", "api/main.py:get_bot_guilds", "missing DISCORD_BOT_TOKEN", {})
+
     try: 
         xp_data = await leveling_repo.read()
         if isinstance(xp_data, dict):

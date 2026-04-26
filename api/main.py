@@ -109,3 +109,21 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
+@app.get("/api/bot/guilds")
+async def get_bot_guilds():
+    guild_ids = set()
+    try: 
+        xp_data = await leveling_repo.read()
+        if isinstance(xp_data, dict):
+            guild_ids.update(xp_data.keys())
+    except Exception:
+        pass
+
+    try:
+        settings_data = await settings_repo.read()
+        if isinstance(settings_data, dict):
+            guild_ids.update(settings_data.keys())
+    except Exception:
+        pass
+
+    return list(guild_ids)

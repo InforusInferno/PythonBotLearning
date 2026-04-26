@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
-
 export default function Home() {
-  const { data: session, status } = useSession();
-
+  const { status } = useSession();
   return (
     <main style={{ 
       padding: "2rem", 
@@ -38,14 +36,12 @@ export default function Home() {
               Login with Discord
             </button>
           )}
-          
           <a href="https://discord.com" target="_blank" className="glass-card" style={{ padding: "0.8rem 1.5rem", borderRadius: "12px", border: "1px solid var(--card-border)" }}>
             Add to Discord
           </a>
         </div>
       </div>
 
-      {/* Feature Cards */}
       <div style={{ 
         marginTop: "5rem", 
         display: "grid", 

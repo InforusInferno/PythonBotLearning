@@ -69,6 +69,16 @@ button {
   font-weight: 800;
 }
 
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px var(--accent_glow);
+}
+
 .btn-primary:hover {
   filter: brightness(1.1);
   transform: scale(1.02);

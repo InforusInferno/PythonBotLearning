@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import GlassCard from '@/components/GlassCard';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
@@ -128,5 +128,13 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div style={{ color: "white", padding: "2rem", background: "var(--background)", minHeight: "100vh" }}>Loading Nebula Dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

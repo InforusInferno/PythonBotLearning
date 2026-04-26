@@ -20,4 +20,4 @@ COPY . .
 
 ENV PYTHONBUFFERED=1
 
-CMD ["python", "bot.py"]
+CMD bash -c "python bot.py & python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT"

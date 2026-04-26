@@ -4,6 +4,7 @@ import json
 import time
 from typing import Optional, List
 from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -44,6 +45,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    _agent_log(
+        "H6_REQUEST_REACHABILITY",
+        "api/main.py:middleware:before",
+        "incoming request",
+        {
+            "method": request.method,
+            "path": request.url.path,
+            "query": str(request.url.query),
+            "origin": request.headers.get("origin")
+        }
+    )
+    response = await call_next(request)
+    _agent_log(
+        "H6_REQUEST_REACHABILITY",
+        "api/main.py:middleware:after",
+        "completed request",
+        {
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": response.status_code
+        }
+    )
+    return response
 
 leveling_repo = LevelingRepository()
 economy_repo = EconomyRepository()

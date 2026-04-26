@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-const Sidebar = () => {
+const SidebarContent = () => {
   const { data: session } = useSession();
   const pathname = usePathname();
   const router = useRouter();
@@ -120,6 +120,12 @@ const Sidebar = () => {
     </aside>
   );
 };
+
+const Sidebar = () => (
+  <Suspense fallback={<aside className="glass-card" style={{ width: "260px", height: "calc(100vh - 4rem)", position: "fixed", left: "2rem", top: "2rem" }}></aside>}>
+    <SidebarContent />
+  </Suspense>
+);
 
 export default Sidebar;
 

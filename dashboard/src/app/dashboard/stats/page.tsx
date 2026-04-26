@@ -11,15 +11,29 @@ export default function StatsPage() {
 
   useEffect(() => {
     const GUILD_ID = "123456789"; // Replace with your real guild ID
+    const runId = `baseline-${Date.now()}`;
     setLoading(true);
-    
-    fetch(`http://localhost:8000/api/leaderboard/${GUILD_ID}?type=${type}`)
-      .then(res => res.json())
+
+    const leaderboardUrl = `http://localhost:8000/api/leaderboard/${GUILD_ID}?type=${type}`;
+    // #region agent log
+    fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H1_API_BASE_URL',location:'dashboard/stats/page.tsx:leaderboard-url',message:'stats page using leaderboard URL',data:{leaderboardUrl,type},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+
+    fetch(leaderboardUrl)
+      .then(res => {
+        // #region agent log
+        fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H3_ROUTE_OR_STATUS',location:'dashboard/stats/page.tsx:leaderboard-status',message:'leaderboard fetch returned status',data:{status:res.status,ok:res.ok,url:res.url},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        return res.json();
+      })
       .then(data => {
         setLeaderboard(data);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H2_CORS_OR_NETWORK',location:'dashboard/stats/page.tsx:leaderboard-error',message:'leaderboard fetch failed',data:{error:String(err)},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         // Mock data if API is down
         setLeaderboard([
           { user_id: "User1", xp: 5000, balance: 10000 },

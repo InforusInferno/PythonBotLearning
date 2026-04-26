@@ -1,5 +1,7 @@
 import os
 import sys
+import json
+import time
 from typing import Optional, List
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,6 +19,23 @@ from utils.repositories import (
 )
 
 app = FastAPI(title="HorizonBot API")
+
+def _agent_log(hypothesis_id: str, location: str, message: str, data: dict):
+    # #region agent log
+    try:
+        with open("debug-6bb96e.log", "a", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "sessionId": "6bb96e",
+                "runId": "baseline",
+                "hypothesisId": hypothesis_id,
+                "location": location,
+                "message": message,
+                "data": data,
+                "timestamp": int(time.time() * 1000)
+            }) + "\n")
+    except Exception:
+        pass
+    # #endregion
 
 app.add_middleware(
     CORSMiddleware,
@@ -51,6 +70,7 @@ async def root():
 
 @app.get("/api/user/{guild_id}/{user_id}")
 async def get_user_data(guild_id: int, user_id: int):
+    _agent_log("H4_BACKEND_EXCEPTION", "api/main.py:get_user_data", "entered get_user_data", {"guild_id": guild_id, "user_id": user_id})
     xp = await leveling_repo.get_xp(guild_id, user_id)
     balance = await economy_repo.get_balance(guild_id, user_id)
     pet = await tamagotchi_repo.get_pet(user_id)
@@ -58,7 +78,7 @@ async def get_user_data(guild_id: int, user_id: int):
 
     level = int((xp/100) ** 0.5) if xp > 0 else 0
 
-    return {
+    payload = {
         "id": str(user_id),
         "guild_id": str(guild_id),
         "xp": xp,
@@ -67,18 +87,26 @@ async def get_user_data(guild_id: int, user_id: int):
         "pet": pet,
         "tasks": tasks
     }
+    _agent_log("H4_BACKEND_EXCEPTION", "api/main.py:get_user_data", "returning get_user_data payload", {"xp": xp, "balance": balance, "tasks_count": len(tasks) if isinstance(tasks, list) else None})
+    return payload
 
 @app.get("/api/leaderboard/{guild_id}")
 async def get_leaderboard(guild_id: int, type: str = "xp", limit: int = 10):
+    _agent_log("H3_ROUTE_OR_STATUS", "api/main.py:get_leaderboard", "entered get_leaderboard", {"guild_id": guild_id, "type": type, "limit": limit})
     if type == "xp":
         all_xp = await leveling_repo.get_all_xp(guild_id)
         sorted_users = sorted(all_xp.items(), key=lambda x:x[1], reverse=True)[:limit]
-        return [{"user_id": u, "xp": x} for u, x in sorted_users]
+        result = [{"user_id": u, "xp": x} for u, x in sorted_users]
+        _agent_log("H3_ROUTE_OR_STATUS", "api/main.py:get_leaderboard", "leaderboard xp response", {"count": len(result)})
+        return result
     elif type == "economy":
         all_balances = await economy_repo.get_all_balances(guild_id)
         sorted_users = sorted(all_balances.items(), key=lambda x:x[1], reverse=True)[:limit]
-        return [{"user_id": u, "balance": b} for u, b in sorted_users]
+        result = [{"user_id": u, "balance": b} for u, b in sorted_users]
+        _agent_log("H3_ROUTE_OR_STATUS", "api/main.py:get_leaderboard", "leaderboard economy response", {"count": len(result)})
+        return result
     else:
+        _agent_log("H3_ROUTE_OR_STATUS", "api/main.py:get_leaderboard", "invalid leaderboard type", {"type": type})
         raise HTTPException(status_code=400, detail="Invalid leaderboard type")
     
 @app.get("/api/setings/{guild_id}")
@@ -111,6 +139,7 @@ if __name__ == "__main__":
 
 @app.get("/api/bot/guilds")
 async def get_bot_guilds():
+    _agent_log("H5_DATA_SOURCE_OR_EMPTY", "api/main.py:get_bot_guilds", "entered get_bot_guilds", {})
     guild_ids = set()
     try: 
         xp_data = await leveling_repo.read()
@@ -126,4 +155,6 @@ async def get_bot_guilds():
     except Exception:
         pass
 
-    return list(guild_ids)
+    result = list(guild_ids)
+    _agent_log("H5_DATA_SOURCE_OR_EMPTY", "api/main.py:get_bot_guilds", "returning get_bot_guilds", {"count": len(result)})
+    return result

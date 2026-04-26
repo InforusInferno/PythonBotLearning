@@ -15,26 +15,53 @@ const SidebarContent = () => {
   // Fetch both Discord guilds and bot guilds, then intersect
   useEffect(() => {
     if (!(session as any)?.accessToken) return;
+    const runId = `baseline-${Date.now()}`;
 
     // 1️⃣ Fetch Discord guilds (full list)
     fetch('https://discord.com/api/users/@me/guilds', {
       headers: { Authorization: `Bearer ${(session as any).accessToken}` }
     })
-      .then(r => r.json())
+      .then(r => {
+        // #region agent log
+        fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H3_ROUTE_OR_STATUS',location:'components/Sidebar.tsx:discord-guilds-status',message:'discord guilds fetch status',data:{status:r.status,ok:r.ok},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        return r.json();
+      })
       .then((userGuilds: any[]) => {
         // 2️⃣ Fetch bot's guild IDs
         const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        // #region agent log
+        fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H1_API_BASE_URL',location:'components/Sidebar.tsx:api-url',message:'sidebar resolved API base URL',data:{apiUrl:API_URL,userGuildsType:Array.isArray(userGuilds)?'array':typeof userGuilds,userGuildsCount:Array.isArray(userGuilds)?userGuilds.length:null},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         fetch(`${API_URL}/api/bot/guilds`)
-          .then(r => r.json())
+          .then(r => {
+            // #region agent log
+            fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H3_ROUTE_OR_STATUS',location:'components/Sidebar.tsx:bot-guilds-status',message:'bot guilds fetch status',data:{status:r.status,ok:r.ok,url:r.url},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
+            return r.json();
+          })
           .then((botIds: string[]) => {
             const safeUserGuilds = Array.isArray(userGuilds) ? userGuilds : [];
             const safeBotIds = Array.isArray(botIds) ? botIds : [];
             const intersect = safeUserGuilds.filter(g => safeBotIds.includes(g.id));
+            // #region agent log
+            fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H5_DATA_SOURCE_OR_EMPTY',location:'components/Sidebar.tsx:intersection',message:'guild intersection computed',data:{safeUserGuildsCount:safeUserGuilds.length,safeBotIdsCount:safeBotIds.length,intersectCount:intersect.length},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
             setGuilds(intersect);
           })
-          .catch(console.error);
+          .catch((err) => {
+            // #region agent log
+            fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H2_CORS_OR_NETWORK',location:'components/Sidebar.tsx:bot-guilds-error',message:'bot guilds fetch failed',data:{error:String(err)},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
+            console.error(err);
+          });
       })
-      .catch(console.error);
+      .catch((err) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H4_AUTH_OR_TOKEN',location:'components/Sidebar.tsx:discord-guilds-error',message:'discord guilds fetch failed',data:{error:String(err)},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        console.error(err);
+      });
   }, [session]);
 
   const selectedGuild = guilds.find(g => g.id === currentGuildId);

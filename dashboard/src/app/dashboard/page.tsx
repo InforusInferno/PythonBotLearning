@@ -15,21 +15,36 @@ function DashboardContent() {
   useEffect(() => {
     const guildId = searchParams?.get('guild');
     const userId = (session?.user as any)?.id;
+    const runId = `baseline-${Date.now()}`;
 
     if (!guildId || !userId) {
+      // #region agent log
+      fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H3_ROUTE_OR_STATUS',location:'dashboard/page.tsx:missing-guild-or-user',message:'dashboard missing required params',data:{guildIdPresent:Boolean(guildId),userIdPresent:Boolean(userId)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       setLoading(false);
       return;
     }
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    // #region agent log
+    fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H1_API_BASE_URL',location:'dashboard/page.tsx:api-url',message:'dashboard resolved API base URL',data:{apiUrl:API_URL,guildId,userId},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     fetch(`${API_URL}/api/user/${guildId}/${userId}`)
-      .then(res => res.json())
+      .then(res => {
+        // #region agent log
+        fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H3_ROUTE_OR_STATUS',location:'dashboard/page.tsx:user-fetch-status',message:'dashboard user fetch returned status',data:{status:res.status,ok:res.ok,url:res.url},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        return res.json();
+      })
       .then(data => {
         setUserData(data);
         setLoading(false);
       })
       .catch(err => {
+        // #region agent log
+        fetch('http://127.0.0.1:7777/ingest/8cbbb94c-b320-4ef3-906e-10e61b91f1a0',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6bb96e'},body:JSON.stringify({sessionId:'6bb96e',runId,hypothesisId:'H2_CORS_OR_NETWORK',location:'dashboard/page.tsx:user-fetch-error',message:'dashboard user fetch failed',data:{error:String(err)},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         console.error("Failed to fetch user data:", err);
         setLoading(false);
         // Fallback mock data if API isn't running
